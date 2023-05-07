@@ -1,0 +1,5 @@
+from PIL import Image, ImageFilter
+image = Image.open(r"C:\Users\Antara Bhattacharjee\Downloads\img1.jpg")
+image = image.convert("L")
+image = image.filter(ImageFilter.FIND_EDGES)
+image.save(r"Edge_Sample.png")
