@@ -1,0 +1,85 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Define the fitness function
+def fitness(x):
+    return np.sum(x)
+
+# Define the selection function (roulette wheel selection)
+def selection(population, fitness_values):
+    p = fitness_values / np.sum(fitness_values)
+    idx = np.random.choice(len(population), size=len(population), replace=True, p=p)
+    return population[idx]
+
+# Define the crossover function (single-point crossover)
+def crossover(parent1, parent2):
+    idx = np.random.randint(len(parent1))
+    child1 = np.concatenate([parent1[:idx], parent2[idx:]])
+    child2 = np.concatenate([parent2[:idx], parent1[idx:]])
+    return child1, child2
+
+# Define the mutation function (bit flip mutation)
+def mutation(individual, mutation_prob):
+    mask = np.random.uniform(size=len(individual)) < mutation_prob
+    individual[mask] = 1 - individual[mask]
+    return individual
+
+# Define the genetic algorithm
+def genetic_algorithm(population_size, chromosome_length, crossover_prob, mutation_prob, num_generations):
+    population = np.random.randint(2, size=(population_size, chromosome_length))
+    fitness_values = np.zeros(population_size)
+    best_fitness_values = np.zeros(num_generations)
+    for i in range(num_generations):
+        # Evaluate fitness
+        for j in range(population_size):
+            fitness_values[j] = fitness(population[j])
+        # Record best fitness value
+        best_fitness_values[i] = np.max(fitness_values)
+        # Selection
+        parents = selection(population, fitness_values)
+        # Crossover
+        for j in range(0, population_size, 2):
+            if np.random.uniform() < crossover_prob:
+                population[j], population[j+1] = crossover(parents[j], parents[j+1])
+        # Mutation
+        for j in range(population_size):
+            population[j] = mutation(population[j], mutation_prob)
+    # Evaluate final fitness
+    for j in range(population_size):
+        fitness_values[j] = fitness(population[j])
+    # Record best individual and fitness value
+    best_individual = population[np.argmax(fitness_values)]
+    best_fitness = np.max(fitness_values)
+    return best_individual, best_fitness, best_fitness_values
+
+# Get user input
+population_size = int(input("Enter population size: "))
+chromosome_length = int(input("Enter chromosome length: "))
+crossover_prob = float(input("Enter crossover probability: "))
+mutation_prob = float(input("Enter mutation probability: "))
+num_generations = int(input("Enter number of generations: "))
+
+# Run the genetic algorithm
+best_individual, best_fitness, best_fitness_values = genetic_algorithm(population_size, chromosome_length, crossover_prob, mutation_prob, num_generations)
+
+# Plot the fitness curve
+plt.figure()
+plt.plot(best_fitness_values)
+plt.title("Fitness Curve")
+plt.xlabel("Generation")
+plt.ylabel("Fitness")
+plt.show()
+
+# Print the output
+print("Best individual:")
+print(best_individual)
+print("Best fitness:")
+print(best_fitness)
+
+Output
+
+Enter population size: 100
+Enter chromosome length: 10
+Enter crossover probability: 0.7
+Enter mutation probability: 0.1
+Enter number of generations: 50
